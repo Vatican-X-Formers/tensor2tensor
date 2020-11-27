@@ -257,6 +257,7 @@ class Image2ClassProblem(ImageProblem):
     p.target_space_id = problem.SpaceID.IMAGE_LABEL
 
   def generate_data(self, data_dir, tmp_dir, task_id=-1):
+    print('[DBG] generate data t2t wth shards', self.train_shards)
     generator_utils.generate_dataset_and_shuffle(
         self.generator(data_dir, tmp_dir, True),
         self.training_filepaths(data_dir, self.train_shards, shuffled=False),
