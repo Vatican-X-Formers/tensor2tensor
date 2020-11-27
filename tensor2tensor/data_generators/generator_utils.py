@@ -154,6 +154,7 @@ def generate_files(generator, output_filenames,
     cycle_every_n: how many cases from the generator to take before
       switching to the next shard; by default set to 1, switch every case.
   """
+  tf.logging.info('dupa')
   if outputs_exist(output_filenames):
     tf.logging.info("Skipping generator because outputs files exists at {}"
                     .format(output_filenames))
