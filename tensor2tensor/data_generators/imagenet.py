@@ -230,7 +230,8 @@ class ImageImagenet32Gen(ImageImagenet):
     return 10
 
   def generate_data(self, data_dir, tmp_dir, task_id=-1):
-    print('[DBG] Generating data')
+    import logging
+    logging.info('[DBG] Generating data')
     generator_utils.generate_dataset_and_shuffle(
         self.generator(data_dir, tmp_dir, True),
         self.training_filepaths(data_dir, self.train_shards, shuffled=True),

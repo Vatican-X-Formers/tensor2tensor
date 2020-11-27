@@ -491,13 +491,14 @@ def write_records(records, out_filename):
       tf.logging.info("write: %d", count)
   writer.close()
 
+import logging
 
 def generate_dataset_and_shuffle(train_gen,
                                  train_paths,
                                  dev_gen,
                                  dev_paths,
                                  shuffle=True):
-  print('DBG', train_paths)
+  logging.info(train_paths)
   generate_files(train_gen, train_paths)
   generate_files(dev_gen, dev_paths)
   mlperf_log.transformer_print(key=mlperf_log.INPUT_ORDER)
