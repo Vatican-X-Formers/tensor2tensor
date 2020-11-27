@@ -497,6 +497,7 @@ def generate_dataset_and_shuffle(train_gen,
                                  dev_gen,
                                  dev_paths,
                                  shuffle=True):
+  print('DBG', train_paths)
   generate_files(train_gen, train_paths)
   generate_files(dev_gen, dev_paths)
   mlperf_log.transformer_print(key=mlperf_log.INPUT_ORDER)
