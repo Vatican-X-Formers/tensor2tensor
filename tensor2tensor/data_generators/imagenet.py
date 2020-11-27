@@ -230,6 +230,7 @@ class ImageImagenet32Gen(ImageImagenet):
     return 10
 
   def generate_data(self, data_dir, tmp_dir, task_id=-1):
+    print('[DBG] Generating data')
     generator_utils.generate_dataset_and_shuffle(
         self.generator(data_dir, tmp_dir, True),
         self.training_filepaths(data_dir, self.train_shards, shuffled=True),
@@ -363,6 +364,14 @@ class ImageImagenet64GenFlat(ImageImagenet64Gen):
 @registry.register_problem
 class ImageImagenet32GenFlat(ImageImagenet32Gen):
   """Imagenet 32 from the pixen cnn paper, as a flat array."""
+
+  @property
+  def train_shards(self):
+    return 512
+
+  @property
+  def dev_shards(self):
+    return 10
 
   def dataset_filename(self):
     return "image_imagenet32_gen"  # Reuse data.
