@@ -223,7 +223,7 @@ class ImageImagenet32Gen(ImageImagenet):
 
   @property
   def train_shards(self):
-    return 1024
+    return 512
 
   @property
   def dev_shards(self):
