@@ -266,6 +266,7 @@ class ImageImagenet64Gen(ImageImagenet):
   def generate_data(self, data_dir, tmp_dir, task_id=-1):
     import resource
     low, high = resource.getrlimit(resource.RLIMIT_NOFILE)
+    print('DBG', low, high)
     resource.setrlimit(resource.RLIMIT_NOFILE, (high, high))
     
     generator_utils.generate_dataset_and_shuffle(
