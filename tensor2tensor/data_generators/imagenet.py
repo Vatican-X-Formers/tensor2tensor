@@ -87,7 +87,7 @@ def imagenet_pixelrnn_generator(tmp_dir,
   width = size
   const_label = 0
   for filename in image_files:
-    with tf.gfile.Open(filename, "r") as f:
+    with tf.gfile.Open(filename, "rb") as f:
       encoded_image = f.read()
       yield {
           "image/encoded": [encoded_image],
@@ -223,13 +223,15 @@ class ImageImagenet32Gen(ImageImagenet):
 
   @property
   def train_shards(self):
-    return 1024
+    return 512
 
   @property
   def dev_shards(self):
     return 10
 
   def generate_data(self, data_dir, tmp_dir, task_id=-1):
+    import logging
+    logging.info('[DBG] Generating data')
     generator_utils.generate_dataset_and_shuffle(
         self.generator(data_dir, tmp_dir, True),
         self.training_filepaths(data_dir, self.train_shards, shuffled=True),
@@ -264,6 +266,11 @@ class ImageImagenet64Gen(ImageImagenet):
     return 10
 
   def generate_data(self, data_dir, tmp_dir, task_id=-1):
+    import resource
+    low, high = resource.getrlimit(resource.RLIMIT_NOFILE)
+    print('DBG', low, high)
+    resource.setrlimit(resource.RLIMIT_NOFILE, (high, high))
+    
     generator_utils.generate_dataset_and_shuffle(
         self.generator(data_dir, tmp_dir, True),
         self.training_filepaths(data_dir, self.train_shards, shuffled=True),
@@ -350,6 +357,38 @@ class ImageImagenet64GenFlat(ImageImagenet64Gen):
 
   def hparams(self, defaults, model_hparams):
     super(ImageImagenet64GenFlat, self).hparams(defaults, model_hparams)
+    # Switch to symbol modality
+    p = defaults
+    p.modality["inputs"] = modalities.ModalityType.SYMBOL_WEIGHTS_ALL
+    p.input_space_id = problem.SpaceID.GENERIC
+    
+@registry.register_problem
+class ImageImagenet32GenFlat(ImageImagenet32Gen):
+  """Imagenet 32 from the pixen cnn paper, as a flat array."""
+
+  @property
+  def train_shards(self):
+    return 512
+
+  @property
+  def dev_shards(self):
+    return 10
+
+  def dataset_filename(self):
+    return "image_imagenet32_gen"  # Reuse data.
+
+  def preprocess_example(self, example, mode, unused_hparams):
+    example["inputs"].set_shape(
+        [_IMAGENET_SMALL_IMAGE_SIZE, _IMAGENET_SMALL_IMAGE_SIZE, 3])
+    example["inputs"] = tf.to_int64(example["inputs"])
+    example["inputs"] = tf.reshape(example["inputs"], (-1,))
+
+    del example["targets"]  # Ensure unconditional generation
+
+    return example
+
+  def hparams(self, defaults, model_hparams):
+    super().hparams(defaults, model_hparams)
     # Switch to symbol modality
     p = defaults
     p.modality["inputs"] = modalities.ModalityType.SYMBOL_WEIGHTS_ALL
